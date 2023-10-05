@@ -31,11 +31,13 @@ type StompBroker struct {
 
 func NewStompBroker() *StompBroker {
 	broker := &StompBroker{}
+	broker.Upgrader = NewUpgrader()
 	broker.inboundPipe = DefaultInboundPipeline()
 	broker.Router = *(NewRouter())
 	broker.brokerPipe = new(BrokerPipeline)
 	broker.relay = new(SimpleRelay)
 	broker.outboundPipe = new(OutboundPipeline)
+	broker.subscriptions = make([]*Subscription, 0)
 	return broker
 }
 
@@ -53,13 +55,13 @@ func (sb *StompBroker) ServeOverHttp(w http.ResponseWriter, r *http.Request) err
 			conn.Close()
 			return err
 		}
-		sb.inboundPipe.Process(NewContext(frame, conn))
+		sb.inboundPipe.Process(NewContext(frame, conn, sb))
 	}
 }
 
 func (sb *StompBroker) addSubscription(subscription *Subscription) {
-	sb.lock.Lock()
-	defer sb.lock.Unlock()
+	//sb.lock.Lock()
+	//defer sb.lock.Unlock()
 	sb.subscriptions = append(sb.subscriptions, subscription)
 }
 

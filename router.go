@@ -15,10 +15,10 @@ func (rg *RouterGroup) Group(prefix string) *RouterGroup {
 	return &RouterGroup{prefix: path.Join(rg.prefix, prefix), router: rg.router}
 }
 
-func (rg *RouterGroup) Send(prefix string, handler MessageHandler) {
+func (rg *RouterGroup) Send(prefix string, handler HandlerFunc) {
 	rg.router.sendMap[path.Join(rg.prefix, prefix)] = handler
 }
-func (rg *RouterGroup) Subscribe(prefix string, handler MessageHandler) {
+func (rg *RouterGroup) Subscribe(prefix string, handler HandlerFunc) {
 	rg.router.subscribeMap[path.Join(rg.prefix, prefix)] = handler
 }
 

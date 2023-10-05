@@ -12,6 +12,18 @@ type Upgrader struct {
 	wsUpgrader websocket.Upgrader
 }
 
+func NewUpgrader() Upgrader {
+	return Upgrader{
+		wsUpgrader: websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
+		},
+	}
+}
+
 // Upgrade 从http连接升级到stomp连接
 func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (*Conn, error) {
 	//建立websocket连接
@@ -49,11 +61,11 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (*Conn, error
 		return nil, errors.New("CONNECT frame must has an accept-version header")
 	}
 
-	//协议版本协商，目前只支持1.2
+	//协议版本协商，目前只支持1.1
 	cVersions := strings.Split(v, ",")
 	var support bool
 	for _, version := range cVersions {
-		if version == "1.2" {
+		if version == "1.1" {
 			support = true
 		}
 	}
@@ -62,7 +74,7 @@ func (u *Upgrader) Upgrade(w http.ResponseWriter, r *http.Request) (*Conn, error
 		conn.Write(
 			ERROR,
 			[]byte(frame.String()),
-			"message", "unsupported protocol version, the supported version is 1.2",
+			"message", "unsupported protocol version, the supported version is 1.1",
 		)
 		return nil, errors.New("unsupported protocol version")
 	}

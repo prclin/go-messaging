@@ -29,6 +29,7 @@ func (str StandardProtocolResolver) Parse(buf []byte) (*Frame, error) {
 		return nil, errors.New("command must exist")
 	}
 	commandStr = strings.TrimSuffix(commandStr, "\n") //去除后缀
+	commandStr = strings.TrimSuffix(commandStr, "\r")
 	command, err := CommandOf(commandStr)
 	if err != nil {
 		return nil, err
@@ -42,6 +43,7 @@ func (str StandardProtocolResolver) Parse(buf []byte) (*Frame, error) {
 			return nil, errors.New("there must be a blank line between header and body")
 		}
 		header = strings.TrimSuffix(header, "\n")
+		header = strings.TrimSuffix(header, "\r")
 		if header == "" { //读取到空行
 			break
 		}
@@ -60,6 +62,6 @@ func (str StandardProtocolResolver) Parse(buf []byte) (*Frame, error) {
 	if err != nil {
 		return nil, errors.New("body must be end with a NULL octet")
 	}
-
+	body = body[:len(body)-1] //去除空八位
 	return NewFrame(command, headers, body), nil
 }

@@ -7,18 +7,20 @@ type Context struct {
 	conn   *Conn
 }
 
-func NewContext(frame *Frame, conn *Conn) *Context {
-	return &Context{Frame: frame, conn: conn}
+func NewContext(frame *Frame, conn *Conn, broker *StompBroker) *Context {
+	return &Context{Frame: frame, conn: conn, broker: broker}
 }
 
 func (context *Context) handle() {
 	handler := context.broker.getMessageHandler(context)
-	handler.HandleMessage(context)
+	if handler != nil {
+		handler.HandleMessage(context)
+	}
 }
 
 func (context *Context) Send(destination string, body []byte) {
 	headers := make(map[string]string)
 	headers["destination"] = destination
 	frame := NewFrame(MESSAGE, headers, body)
-	context.broker.brokerPipe.Process(NewContext(frame, nil))
+	context.broker.brokerPipe.Process(NewContext(frame, nil, context.broker))
 }

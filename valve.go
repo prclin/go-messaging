@@ -85,8 +85,8 @@ type UnsubscribeValve struct {
 }
 
 func (valve *UnsubscribeValve) Valve(ctx *Context) error {
-	//TODO implement me
-	panic("implement me")
+
+	return valve.Next().Valve(ctx)
 }
 
 type DisconnectValve struct {
